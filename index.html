@@ -70,19 +70,19 @@ body::before {
 /* Floating Ambient Orbs */
 .glow-orb {
   position: absolute;
-  width: 480px;
-  height: 480px;
+  width: 550px;
+  height: 550px;
   border-radius: 50%;
-  filter: blur(140px);
+  filter: blur(150px);
   opacity: 0.18;
   pointer-events: none;
   z-index: 0;
-  animation: float-glow 22s infinite alternate ease-in-out;
+  animation: float-glow 25s infinite alternate ease-in-out;
 }
 .glow-orb-1 {
   background: var(--accent);
   top: -10%;
-  left: 10%;
+  left: 5%;
 }
 .glow-orb-2 {
   background: var(--result);
@@ -93,15 +93,15 @@ body::before {
 
 @keyframes float-glow {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(70px, -60px) scale(1.15); }
-  100% { transform: translate(-30px, 40px) scale(0.95); }
+  50% { transform: translate(80px, -70px) scale(1.15); }
+  100% { transform: translate(-40px, 50px) scale(0.95); }
 }
 
 header, main, footer {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 540px;
+  max-width: 1080px; /* Broadened for desktop balance */
 }
 
 /* HEADER */
@@ -157,11 +157,11 @@ header {
   background: linear-gradient(135deg, rgba(20, 20, 30, 0.6) 0%, rgba(10, 10, 15, 0.6) 100%);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  padding: 22px 24px;
+  padding: 24px 30px;
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 30px;
+  margin-bottom: 24px;
   backdrop-filter: blur(20px);
   box-shadow: var(--shadow);
 }
@@ -169,34 +169,47 @@ header {
   flex: 1;
 }
 .hero-text h1 {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 800;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   background: linear-gradient(135deg, #c084fc 0%, #22d3ee 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 .hero-text p {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--textdim);
   line-height: 1.6;
 }
 .hero-img {
-  width: 90px;
-  height: 90px;
+  width: 100px;
+  height: 100px;
   object-fit: cover;
-  border-radius: 18px;
+  border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
   flex-shrink: 0;
 }
 
-/* MAIN CARD */
+/* DASHBOARD LAYOUT */
 main {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr; /* Perfectly balanced side-by-side columns */
+  gap: 24px;
+  align-items: start;
+}
+.dash-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* CARDS */
 .card {
   background: var(--surf);
   backdrop-filter: blur(24px);
@@ -730,7 +743,7 @@ main {
 
 /* FOOTER */
 footer {
-  margin-top: 28px;
+  margin-top: 36px;
   text-align: center;
   font-size: 11px;
   color: var(--muted);
@@ -747,7 +760,13 @@ footer a:hover {
   border-bottom-color: #22d3ee;
 }
 
-/* RESPONSIVE */
+/* RESPONSIVE DESKTOP LAYOUT (TABLET & MOBILE BREAKPOINTS) */
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr; /* Stacks vertically on smaller screens */
+  }
+}
+
 @media (max-width: 500px) {
   .card { padding: 20px; }
   .quick-grid { grid-template-columns: repeat(2, 1fr); }
@@ -755,7 +774,7 @@ footer a:hover {
   .input-group { padding: 12px 16px; }
   .trigger { padding: 6px 10px; }
   .panel { width: 100%; left: 0; }
-  .hero-banner { flex-direction: column; text-align: center; }
+  .hero-banner { flex-direction: column; text-align: center; padding: 20px; }
   .hero-img { width: 80px; height: 80px; }
 }
 </style>
@@ -778,7 +797,7 @@ footer a:hover {
 </header>
 
 <main>
-  <!-- Hero Banner Section -->
+  <!-- Hero Banner Section (Full-Width) -->
   <div class="hero-banner">
     <div class="hero-text">
       <h1>Hệ Thống Fintech Đám Mây</h1>
@@ -787,118 +806,128 @@ footer a:hover {
     <img src="./glowing_fintech_globe.png" alt="Glowing Fintech Globe" class="hero-img"/>
   </div>
 
-  <!-- Converter card -->
-  <div class="card">
-    <!-- Row 1: FROM -->
-    <div class="input-group">
-      <div class="input-col">
-        <div class="field-label">Bạn chuyển đi</div>
-        <input type="number" id="amtInput" class="amount-input" placeholder="100" value="100" min="0" step="any"/>
-      </div>
-      
-      <div class="dropdown" id="dd-from">
-        <div class="trigger" id="tr-from">
-          <span class="t-flag" id="fl-from">🇺🇸</span>
-          <div class="t-info">
-            <span class="t-code" id="cd-from">USD</span>
+  <!-- Dashboard Grid (2 Columns on Desktop) -->
+  <div class="dashboard-grid">
+    
+    <!-- LEFT COLUMN: Main Converter Box -->
+    <div class="dash-col">
+      <div class="card">
+        <!-- Row 1: FROM -->
+        <div class="input-group">
+          <div class="input-col">
+            <div class="field-label">Bạn chuyển đi</div>
+            <input type="number" id="amtInput" class="amount-input" placeholder="100" value="100" min="0" step="any"/>
           </div>
-          <svg class="t-chevron" width="10" height="6" viewBox="0 0 11 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 1l4.5 4.5L10 1"/></svg>
-        </div>
-        <div class="panel" id="pn-from">
-          <div class="psearch"><input type="text" id="sr-from" placeholder="Tìm tiền tệ..." autocomplete="off"/></div>
-          <div class="plist" id="pl-from"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Middle: SWAP -->
-    <div class="swap-row">
-      <button class="swap-btn" id="swapBtn" title="Hoán đổi">
-        <svg width="15" height="15" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4.5 11V3m0 0L2 5.5m2.5-2.5L7 5.5"/><path d="M12.5 6v8m0 0l2.5-2.5M12.5 14l-2.5-2.5"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Row 2: TO -->
-    <div class="input-group" style="margin-top: 4px;">
-      <div class="input-col">
-        <div class="field-label">Bạn nhận được (ước tính)</div>
-        <div class="result-display dim" id="resNum">—</div>
-      </div>
-      
-      <div class="dropdown" id="dd-to">
-        <div class="trigger" id="tr-to">
-          <span class="t-flag" id="fl-to">🇻🇳</span>
-          <div class="t-info">
-            <span class="t-code" id="cd-to">VND</span>
+          
+          <div class="dropdown" id="dd-from">
+            <div class="trigger" id="tr-from">
+              <span class="t-flag" id="fl-from">🇺🇸</span>
+              <div class="t-info">
+                <span class="t-code" id="cd-from">USD</span>
+              </div>
+              <svg class="t-chevron" width="10" height="6" viewBox="0 0 11 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 1l4.5 4.5L10 1"/></svg>
+            </div>
+            <div class="panel" id="pn-from">
+              <div class="psearch"><input type="text" id="sr-from" placeholder="Tìm tiền tệ..." autocomplete="off"/></div>
+              <div class="plist" id="pl-from"></div>
+            </div>
           </div>
-          <svg class="t-chevron" width="10" height="6" viewBox="0 0 11 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 1l4.5 4.5L10 1"/></svg>
         </div>
-        <div class="panel" id="pn-to">
-          <div class="psearch"><input type="text" id="sr-to" placeholder="Tìm tiền tệ..." autocomplete="off"/></div>
-          <div class="plist" id="pl-to"></div>
+
+        <!-- Middle: SWAP -->
+        <div class="swap-row">
+          <button class="swap-btn" id="swapBtn" title="Hoán đổi">
+            <svg width="15" height="15" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.5 11V3m0 0L2 5.5m2.5-2.5L7 5.5"/><path d="M12.5 6v8m0 0l2.5-2.5M12.5 14l-2.5-2.5"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Row 2: TO -->
+        <div class="input-group" style="margin-top: 4px;">
+          <div class="input-col">
+            <div class="field-label">Bạn nhận được (ước tính)</div>
+            <div class="result-display dim" id="resNum">—</div>
+          </div>
+          
+          <div class="dropdown" id="dd-to">
+            <div class="trigger" id="tr-to">
+              <span class="t-flag" id="fl-to">🇻🇳</span>
+              <div class="t-info">
+                <span class="t-code" id="cd-to">VND</span>
+              </div>
+              <svg class="t-chevron" width="10" height="6" viewBox="0 0 11 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 1l4.5 4.5L10 1"/></svg>
+            </div>
+            <div class="panel" id="pn-to">
+              <div class="psearch"><input type="text" id="sr-to" placeholder="Tìm tiền tệ..." autocomplete="off"/></div>
+              <div class="plist" id="pl-to"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="err-box" id="errBox"></div>
+
+        <!-- Dynamic Fee Calculator -->
+        <div class="fee-calculator">
+          <div class="fee-title">Phí giao dịch ước tính</div>
+          <div class="fee-row">
+            <span>Chuyển khoản Ngân hàng (Phí 0.5%):</span>
+            <span id="feeBank">—</span>
+          </div>
+          <div class="fee-row">
+            <span>Thẻ tín dụng quốc tế (Phí 2.5%):</span>
+            <span id="feeCredit">—</span>
+          </div>
+        </div>
+
+        <!-- Mock Cloud Alert setting -->
+        <div class="alert-section">
+          <div class="alert-header">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span>Đặt cảnh báo biến động (Cloud Function Alert)</span>
+          </div>
+          <div class="alert-inputs">
+            <input type="number" id="alertThreshold" class="alert-input" placeholder="Tỷ giá mục tiêu"/>
+            <button class="alert-btn" id="alertBtn">Đặt cảnh báo</button>
+          </div>
+          <div class="alert-status" id="alertStatus"></div>
+        </div>
+
+        <!-- Hidden element just in case it is queried by JS names -->
+        <span id="nm-from" style="display: none;">Đô la Mỹ</span>
+        <span id="nm-to" style="display: none;">Đồng Việt Nam</span>
+
+        <!-- Card Footer with Exchange Rates -->
+        <div class="rates-footer">
+          <div class="result-rates" id="resRates"></div>
+          <div class="rate-date" id="resDate"></div>
         </div>
       </div>
     </div>
-
-    <div class="err-box" id="errBox"></div>
-
-    <!-- Dynamic Fee Calculator -->
-    <div class="fee-calculator">
-      <div class="fee-title">Phí giao dịch ước tính</div>
-      <div class="fee-row">
-        <span>Chuyển khoản Ngân hàng (Phí 0.5%):</span>
-        <span id="feeBank">—</span>
+    
+    <!-- RIGHT COLUMN: Analytics Chart & Quick Convert Grid -->
+    <div class="dash-col">
+      <!-- Historical Analytics Chart Card -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Xu hướng biến động (30 ngày gần nhất)</div>
+          <div class="chart-subtitle" id="chartSub">—</div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="rateChart"></canvas>
+        </div>
       </div>
-      <div class="fee-row">
-        <span>Thẻ tín dụng quốc tế (Phí 2.5%):</span>
-        <span id="feeCredit">—</span>
+
+      <!-- Quick convert card -->
+      <div class="quick-card">
+        <div class="quick-header">
+          <div class="quick-title">Quy đổi nhanh</div>
+          <div class="quick-from-lbl" id="qFromLbl">100 USD →</div>
+        </div>
+        <div class="quick-grid" id="quickGrid"></div>
       </div>
     </div>
 
-    <!-- Mock Cloud Alert setting -->
-    <div class="alert-section">
-      <div class="alert-header">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-        <span>Đặt cảnh báo biến động (Cloud Function Alert)</span>
-      </div>
-      <div class="alert-inputs">
-        <input type="number" id="alertThreshold" class="alert-input" placeholder="Tỷ giá mục tiêu"/>
-        <button class="alert-btn" id="alertBtn">Đặt cảnh báo</button>
-      </div>
-      <div class="alert-status" id="alertStatus"></div>
-    </div>
-
-    <!-- Hidden element just in case it is queried by JS names -->
-    <span id="nm-from" style="display: none;">Đô la Mỹ</span>
-    <span id="nm-to" style="display: none;">Đồng Việt Nam</span>
-
-    <!-- Card Footer with Exchange Rates -->
-    <div class="rates-footer">
-      <div class="result-rates" id="resRates"></div>
-      <div class="rate-date" id="resDate"></div>
-    </div>
-  </div>
-
-  <!-- Historical Analytics Chart Card -->
-  <div class="chart-card">
-    <div class="chart-header">
-      <div class="chart-title">Xu hướng biến động (30 ngày gần nhất)</div>
-      <div class="chart-subtitle" id="chartSub">—</div>
-    </div>
-    <div class="chart-wrapper">
-      <canvas id="rateChart"></canvas>
-    </div>
-  </div>
-
-  <!-- Quick convert card -->
-  <div class="quick-card">
-    <div class="quick-header">
-      <div class="quick-title">Quy đổi nhanh</div>
-      <div class="quick-from-lbl" id="qFromLbl">100 USD →</div>
-    </div>
-    <div class="quick-grid" id="quickGrid"></div>
   </div>
 </main>
 
@@ -1067,6 +1096,7 @@ function openDD(side) {
   setTimeout(() => sr.focus(), 40);
 }
 
+// Close dropdown panels
 function closeDD(side) {
   document.getElementById('tr-' + side).classList.remove('open');
   document.getElementById('pn-' + side).classList.remove('open');
@@ -1185,19 +1215,17 @@ function updateChart(from, to, currentRate) {
     d.setDate(d.getDate() - i);
     labels.push(d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'}));
     
-    // Slight random variation (up to 0.5% fluctuation per day)
+    // Slight random variation
     const change = (Math.random() - 0.48) * 0.006 * baseVal;
     baseVal -= change;
     data.unshift(baseVal);
   }
-  // Make the final element exactly equal to currentRate
   data[29] = currentRate;
 
   if (chartInstance) {
     chartInstance.destroy();
   }
 
-  // Neon gradient background for area fill
   const gradient = ctx.createLinearGradient(0, 0, 0, 200);
   gradient.addColorStop(0, 'rgba(168, 85, 247, 0.25)');
   gradient.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
