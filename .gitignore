@@ -1,0 +1,9 @@
+# Temporary files
+~$*
+*.tmp
+
+# IDEs and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
