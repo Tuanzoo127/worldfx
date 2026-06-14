@@ -101,7 +101,7 @@ header, main, footer {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1080px; /* Broadened for desktop balance */
+  max-width: 1080px;
 }
 
 /* HEADER */
@@ -199,7 +199,7 @@ main {
 }
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1.05fr 0.95fr; /* Perfectly balanced side-by-side columns */
+  grid-template-columns: 1.05fr 0.95fr;
   gap: 24px;
   align-items: start;
 }
@@ -329,7 +329,7 @@ main {
 .trigger {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -347,8 +347,8 @@ main {
   background: rgba(168, 85, 247, 0.1);
 }
 .t-flag {
-  font-size: 20px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
   flex-shrink: 0;
 }
 .t-info {
@@ -444,7 +444,7 @@ main {
 .pitem {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 8px 14px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -458,8 +458,8 @@ main {
   border-left: 3px solid var(--accent);
 }
 .pi-flag {
-  font-size: 16px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
   flex-shrink: 0;
 }
 .pi-code {
@@ -715,8 +715,8 @@ main {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 .qi-flag {
-  font-size: 15px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
   margin-bottom: 4px;
 }
 .qi-code {
@@ -763,7 +763,7 @@ footer a:hover {
 /* RESPONSIVE DESKTOP LAYOUT (TABLET & MOBILE BREAKPOINTS) */
 @media (max-width: 900px) {
   .dashboard-grid {
-    grid-template-columns: 1fr; /* Stacks vertically on smaller screens */
+    grid-template-columns: 1fr;
   }
 }
 
@@ -821,7 +821,7 @@ footer a:hover {
           
           <div class="dropdown" id="dd-from">
             <div class="trigger" id="tr-from">
-              <span class="t-flag" id="fl-from">🇺🇸</span>
+              <span class="t-flag" id="fl-from"><img src="https://flagcdn.com/w40/us.png" width="20" height="15" alt="US" style="border-radius: 2px; object-fit: cover; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"/></span>
               <div class="t-info">
                 <span class="t-code" id="cd-from">USD</span>
               </div>
@@ -852,7 +852,7 @@ footer a:hover {
           
           <div class="dropdown" id="dd-to">
             <div class="trigger" id="tr-to">
-              <span class="t-flag" id="fl-to">🇻🇳</span>
+              <span class="t-flag" id="fl-to"><img src="https://flagcdn.com/w40/vn.png" width="20" height="15" alt="VN" style="border-radius: 2px; object-fit: cover; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"/></span>
               <div class="t-info">
                 <span class="t-code" id="cd-to">VND</span>
               </div>
@@ -1011,8 +1011,7 @@ const NO_DEC  = new Set(['VND','JPY','KRW','IDR','KHR','PYG','UGX','BIF','DJF','
 function flag(code) {
   const cc = CC[code];
   if (!cc) return '💱';
-  if (cc === 'EU') return '🇪🇺';
-  return [...cc].map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)).join('');
+  return `<img src="https://flagcdn.com/w40/${cc.toLowerCase()}.png" width="20" height="15" alt="${cc}" style="border-radius: 2px; object-fit: cover; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"/>`;
 }
 
 function fmt(n, cur) {
@@ -1096,7 +1095,6 @@ function openDD(side) {
   setTimeout(() => sr.focus(), 40);
 }
 
-// Close dropdown panels
 function closeDD(side) {
   document.getElementById('tr-' + side).classList.remove('open');
   document.getElementById('pn-' + side).classList.remove('open');
@@ -1105,13 +1103,13 @@ function closeDD(side) {
 function pick(side, code) {
   if (side === 'from') {
     selFrom = code;
-    document.getElementById('fl-from').textContent = flag(code);
+    document.getElementById('fl-from').innerHTML = flag(code);
     document.getElementById('cd-from').textContent = code;
     document.getElementById('fromTag').textContent = code;
     closeDD('from');
   } else {
     selTo = code;
-    document.getElementById('fl-to').textContent = flag(code);
+    document.getElementById('fl-to').innerHTML = flag(code);
     document.getElementById('cd-to').textContent = code;
     closeDD('to');
   }
@@ -1132,7 +1130,7 @@ document.getElementById('swapBtn').addEventListener('click', () => {
   [selFrom, selTo] = [selTo, selFrom];
   ['from','to'].forEach(side => {
     const c = side === 'from' ? selFrom : selTo;
-    document.getElementById('fl-' + side).textContent = flag(c);
+    document.getElementById('fl-' + side).innerHTML = flag(c);
     document.getElementById('cd-' + side).textContent = c;
   });
   document.getElementById('fromTag').textContent = selFrom;
