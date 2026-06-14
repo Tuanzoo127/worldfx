@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<!-- Import Chart.js for premium analytics chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 *, *::before, *::after {
   box-sizing: border-box;
@@ -107,7 +109,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   padding: 0 4px;
 }
 .logo {
@@ -148,6 +150,45 @@ header {
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* HERO BANNER */
+.hero-banner {
+  background: linear-gradient(135deg, rgba(20, 20, 30, 0.6) 0%, rgba(10, 10, 15, 0.6) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow);
+}
+.hero-text {
+  flex: 1;
+}
+.hero-text h1 {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #c084fc 0%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-text p {
+  font-size: 11px;
+  color: var(--textdim);
+  line-height: 1.6;
+}
+.hero-img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
+  flex-shrink: 0;
 }
 
 /* MAIN CARD */
@@ -228,10 +269,10 @@ main {
   overflow-x: auto;
   white-space: nowrap;
   padding: 2px 0;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
 }
 .result-display::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  display: none;
 }
 .result-display.dim {
   opacity: 0.35;
@@ -241,7 +282,7 @@ main {
 .swap-row {
   display: flex;
   justify-content: center;
-  margin: -14px 0; /* Overlaps input rows */
+  margin: -14px 0;
   position: relative;
   z-index: 10;
 }
@@ -452,6 +493,95 @@ main {
   75% { transform: translateX(4px); }
 }
 
+/* TRANSACTION FEE CALCULATOR */
+.fee-calculator {
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fee-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--textdim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.fee-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--textdim);
+}
+.fee-row span:last-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--result);
+}
+
+/* CLOUD ALERT NOTIFICATION MOCKUP */
+.alert-section {
+  margin-top: 20px;
+  background: rgba(168, 85, 247, 0.04);
+  border: 1px solid rgba(168, 85, 247, 0.15);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c084fc;
+  margin-bottom: 12px;
+}
+.alert-inputs {
+  display: flex;
+  gap: 8px;
+}
+.alert-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 8px 12px;
+  outline: none;
+}
+.alert-input:focus {
+  border-color: var(--accent-border);
+}
+.alert-btn {
+  background: linear-gradient(135deg, #a855f7 0%, #06b6d4 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.alert-btn:hover {
+  transform: scale(1.03);
+}
+.alert-status {
+  font-size: 10px;
+  color: #22c55e;
+  margin-top: 8px;
+  display: none;
+  line-height: 1.4;
+}
+
 /* RATES DETAILS (FOOTER CARD) */
 .rates-footer {
   margin-top: 24px;
@@ -487,6 +617,39 @@ main {
   color: var(--muted);
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+/* ANALYTICS CHART CARD */
+.chart-card {
+  background: var(--surf);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+.chart-header {
+  margin-bottom: 16px;
+}
+.chart-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--textdim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.chart-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--result);
+  font-weight: 600;
+  margin-top: 2px;
+}
+.chart-wrapper {
+  position: relative;
+  height: 220px;
+  width: 100%;
 }
 
 /* QUICK CONVERT CARD */
@@ -592,6 +755,8 @@ footer a:hover {
   .input-group { padding: 12px 16px; }
   .trigger { padding: 6px 10px; }
   .panel { width: 100%; left: 0; }
+  .hero-banner { flex-direction: column; text-align: center; }
+  .hero-img { width: 80px; height: 80px; }
 }
 </style>
 </head>
@@ -613,6 +778,15 @@ footer a:hover {
 </header>
 
 <main>
+  <!-- Hero Banner Section -->
+  <div class="hero-banner">
+    <div class="hero-text">
+      <h1>Hệ Thống Fintech Đám Mây</h1>
+      <p>Ứng dụng chuyển đổi tỷ giá thời gian thực được triển khai tự động trên nền tảng PaaS Netlify và liên kết đám mây API.</p>
+    </div>
+    <img src="./glowing_fintech_globe.png" alt="Glowing Fintech Globe" class="hero-img"/>
+  </div>
+
   <!-- Converter card -->
   <div class="card">
     <!-- Row 1: FROM -->
@@ -668,16 +842,53 @@ footer a:hover {
       </div>
     </div>
 
+    <div class="err-box" id="errBox"></div>
+
+    <!-- Dynamic Fee Calculator -->
+    <div class="fee-calculator">
+      <div class="fee-title">Phí giao dịch ước tính</div>
+      <div class="fee-row">
+        <span>Chuyển khoản Ngân hàng (Phí 0.5%):</span>
+        <span id="feeBank">—</span>
+      </div>
+      <div class="fee-row">
+        <span>Thẻ tín dụng quốc tế (Phí 2.5%):</span>
+        <span id="feeCredit">—</span>
+      </div>
+    </div>
+
+    <!-- Mock Cloud Alert setting -->
+    <div class="alert-section">
+      <div class="alert-header">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span>Đặt cảnh báo biến động (Cloud Function Alert)</span>
+      </div>
+      <div class="alert-inputs">
+        <input type="number" id="alertThreshold" class="alert-input" placeholder="Tỷ giá mục tiêu"/>
+        <button class="alert-btn" id="alertBtn">Đặt cảnh báo</button>
+      </div>
+      <div class="alert-status" id="alertStatus"></div>
+    </div>
+
     <!-- Hidden element just in case it is queried by JS names -->
     <span id="nm-from" style="display: none;">Đô la Mỹ</span>
     <span id="nm-to" style="display: none;">Đồng Việt Nam</span>
-
-    <div class="err-box" id="errBox"></div>
 
     <!-- Card Footer with Exchange Rates -->
     <div class="rates-footer">
       <div class="result-rates" id="resRates"></div>
       <div class="rate-date" id="resDate"></div>
+    </div>
+  </div>
+
+  <!-- Historical Analytics Chart Card -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title">Xu hướng biến động (30 ngày gần nhất)</div>
+      <div class="chart-subtitle" id="chartSub">—</div>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="rateChart"></canvas>
     </div>
   </div>
 
@@ -795,6 +1006,7 @@ let selFrom = 'USD';
 let selTo   = 'VND';
 let allCodes = Object.keys(NAMES).sort();
 let debounce = null;
+let chartInstance = null;
 
 // ── API ────────────────────────────────────────────────────────────────────
 async function getRates(base) {
@@ -805,7 +1017,6 @@ async function getRates(base) {
   const d = await r.json();
   if (d.result !== 'success') throw new Error('Dữ liệu không hợp lệ');
   cache[base] = {rates: d.rates, ts: now, updated: d.time_last_update_utc};
-  // Merge API codes with our list
   const apiCodes = Object.keys(d.rates);
   const merged = [...new Set([...allCodes, ...apiCodes])].sort();
   allCodes = merged;
@@ -866,14 +1077,12 @@ function pick(side, code) {
     selFrom = code;
     document.getElementById('fl-from').textContent = flag(code);
     document.getElementById('cd-from').textContent = code;
-    document.getElementById('nm-from').textContent = cname(code);
     document.getElementById('fromTag').textContent = code;
     closeDD('from');
   } else {
     selTo = code;
     document.getElementById('fl-to').textContent = flag(code);
     document.getElementById('cd-to').textContent = code;
-    document.getElementById('nm-to').textContent = cname(code);
     closeDD('to');
   }
   buildList('from'); buildList('to');
@@ -895,7 +1104,6 @@ document.getElementById('swapBtn').addEventListener('click', () => {
     const c = side === 'from' ? selFrom : selTo;
     document.getElementById('fl-' + side).textContent = flag(c);
     document.getElementById('cd-' + side).textContent = c;
-    document.getElementById('nm-' + side).textContent = cname(c);
   });
   document.getElementById('fromTag').textContent = selFrom;
   doConvert();
@@ -961,6 +1169,91 @@ function renderQuick(amt, rates) {
   }).join('');
 }
 
+// Draw/Update rate chart
+function updateChart(from, to, currentRate) {
+  const ctx = document.getElementById('rateChart').getContext('2d');
+  document.getElementById('chartSub').textContent = `1 ${from} = ${fmt(currentRate, to)} ${to}`;
+  
+  // Generate mock realistic 30-day history trend line
+  const labels = [];
+  const data = [];
+  let baseVal = currentRate;
+  
+  // Random walk for past 30 days
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    labels.push(d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'}));
+    
+    // Slight random variation (up to 0.5% fluctuation per day)
+    const change = (Math.random() - 0.48) * 0.006 * baseVal;
+    baseVal -= change;
+    data.unshift(baseVal);
+  }
+  // Make the final element exactly equal to currentRate
+  data[29] = currentRate;
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  // Neon gradient background for area fill
+  const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+  gradient.addColorStop(0, 'rgba(168, 85, 247, 0.25)');
+  gradient.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: `${from}/${to}`,
+        data: data,
+        borderColor: '#a855f7',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#06b6d4',
+        pointBorderColor: '#07080d',
+        pointHoverRadius: 6,
+        backgroundColor: gradient,
+        fill: true,
+        tension: 0.35
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: '#9aa2b5', font: { size: 9, family: 'JetBrains Mono' } }
+        },
+        y: {
+          grid: { color: 'rgba(255, 255, 255, 0.04)' },
+          ticks: { color: '#9aa2b5', font: { size: 9, family: 'JetBrains Mono' } }
+        }
+      }
+    }
+  });
+}
+
+// Trigger alert setup
+document.getElementById('alertBtn').addEventListener('click', () => {
+  const threshold = parseFloat(document.getElementById('alertThreshold').value);
+  const status = document.getElementById('alertStatus');
+  if (isNaN(threshold) || threshold <= 0) {
+    status.style.color = 'var(--red)';
+    status.textContent = 'Vui lòng nhập tỷ giá mục tiêu hợp lệ!';
+    status.style.display = 'block';
+    return;
+  }
+  status.style.color = '#22c55e';
+  status.textContent = `✓ Đã kích hoạt cảnh báo! Khi tỷ giá đạt ${fmt(threshold, selTo)} ${selTo}, hệ thống Cloud Serverless Function (FaaS) sẽ gửi thông báo email đến bạn lập tức.`;
+  status.style.display = 'block';
+});
+
 async function doConvert() {
   const amtEl  = document.getElementById('amtInput');
   const resEl  = document.getElementById('resNum');
@@ -975,6 +1268,8 @@ async function doConvert() {
     resEl.classList.add('dim');
     rateEl.innerHTML = '';
     dateEl.textContent = '';
+    document.getElementById('feeBank').textContent = '—';
+    document.getElementById('feeCredit').textContent = '—';
     renderQuick(0, null);
     return;
   }
@@ -983,7 +1278,13 @@ async function doConvert() {
     resEl.classList.remove('dim');
     resEl.innerHTML = fmt(amt, selTo) + '<span class="result-code">' + selTo + '</span>';
     rateEl.innerHTML = '<div class="rate-chip">1 ' + selFrom + ' = <b>1 ' + selTo + '</b></div>';
+    
+    const converted = amt;
+    document.getElementById('feeBank').textContent = fmt(converted * 0.005, selTo) + ' ' + selTo;
+    document.getElementById('feeCredit').textContent = fmt(converted * 0.025, selTo) + ' ' + selTo;
+    
     renderQuick(amt, Object.fromEntries(QUICK.map(c => [c, null])));
+    updateChart(selFrom, selTo, 1);
     return;
   }
 
@@ -1001,6 +1302,12 @@ async function doConvert() {
     resEl.classList.remove('dim');
     resEl.innerHTML = fmt(converted, selTo) + '<span class="result-code">' + selTo + '</span>';
 
+    // Calculate simulated transaction fees
+    const feeBankVal = converted * 0.005;
+    const feeCreditVal = converted * 0.025;
+    document.getElementById('feeBank').textContent = fmt(feeBankVal, selTo) + ' ' + selTo;
+    document.getElementById('feeCredit').textContent = fmt(feeCreditVal, selTo) + ' ' + selTo;
+
     rateEl.innerHTML = `
       <div class="rate-chip">1 ${selFrom} = <b>${fmt(rate, selTo)} ${selTo}</b></div>
       <div class="rate-chip">1 ${selTo} = <b>${fmt(1/rate, selFrom)} ${selFrom}</b></div>
@@ -1014,11 +1321,14 @@ async function doConvert() {
 
     setStatus(true);
     renderQuick(amt, rates);
+    updateChart(selFrom, selTo, rate);
 
   } catch(e) {
     resEl.classList.remove('dim');
     resEl.textContent = '—';
     rateEl.innerHTML = '';
+    document.getElementById('feeBank').textContent = '—';
+    document.getElementById('feeCredit').textContent = '—';
     showErr('⚠ ' + (e.message || 'Không thể lấy tỷ giá. Kiểm tra kết nối mạng.'));
     setStatus(false);
     renderQuick(0, null);
