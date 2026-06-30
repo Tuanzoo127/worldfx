@@ -1208,27 +1208,59 @@ function renderQuick(amt, rates) {
 }
 
 // Draw/Update rate chart
-function updateChart(from, to, currentRate) {
+async function updateChart(from, to, currentRate) {
   const ctx = document.getElementById('rateChart').getContext('2d');
   document.getElementById('chartSub').textContent = `1 ${from} = ${fmt(currentRate, to)} ${to}`;
   
-  // Generate mock realistic 30-day history trend line
-  const labels = [];
-  const data = [];
-  let baseVal = currentRate;
-  
-  // Random walk for past 30 days
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    labels.push(d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'}));
-    
-    // Slight random variation
-    const change = (Math.random() - 0.48) * 0.006 * baseVal;
-    baseVal -= change;
-    data.unshift(baseVal);
+  let labels = [];
+  let data = [];
+  let isRealData = false;
+
+  const now = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - 30);
+
+  const endDate = now.toISOString().split('T')[0];
+  const startDate = start.toISOString().split('T')[0];
+
+  try {
+    if (from !== to) {
+      const res = await fetch(`https://api.frankfurter.app/${startDate}..${endDate}?from=${from}&to=${to}`);
+      if (!res.ok) throw new Error("API not supported or offline");
+      const parsed = await res.json();
+      
+      const rateDates = Object.keys(parsed.rates).sort();
+      if (rateDates.length > 0) {
+        labels = rateDates.map(dStr => {
+          const parts = dStr.split('-');
+          return `${parts[2]}/${parts[1]}`;
+        });
+        data = rateDates.map(dStr => parsed.rates[dStr][to]);
+        
+        if (data.length > 0) {
+          data[data.length - 1] = currentRate;
+        }
+        isRealData = true;
+        console.log(`[Cloud Chart] Real historical data loaded for ${from}/${to}`);
+      }
+    }
+  } catch (err) {
+    console.warn(`[Cloud Chart] Fallback to simulated history: ${err.message}`);
   }
-  data[29] = currentRate;
+
+  if (!isRealData) {
+    let baseVal = currentRate;
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      labels.push(d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'}));
+      
+      const change = (Math.random() - 0.48) * 0.006 * baseVal;
+      baseVal -= change;
+      data.unshift(baseVal);
+    }
+    data[29] = currentRate;
+  }
 
   if (chartInstance) {
     chartInstance.destroy();
@@ -1360,7 +1392,7 @@ async function doConvert() {
     document.getElementById('feeCredit').textContent = fmt(converted * 0.025, selTo) + ' ' + selTo;
     
     renderQuick(amt, Object.fromEntries(QUICK.map(c => [c, null])));
-    updateChart(selFrom, selTo, 1);
+    await updateChart(selFrom, selTo, 1);
     return;
   }
 
@@ -1397,7 +1429,7 @@ async function doConvert() {
 
     setStatus(true);
     renderQuick(amt, rates);
-    updateChart(selFrom, selTo, rate);
+    await updateChart(selFrom, selTo, rate);
 
   } catch(e) {
     resEl.classList.remove('dim');
