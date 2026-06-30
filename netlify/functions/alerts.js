@@ -42,8 +42,22 @@ export default async (request, context) => {
       });
     }
 
+    // Chuẩn hóa và làm sạch Supabase URL để chống lỗi gõ thừa /rest/v1 hoặc dấu gạch chéo ngược
+    let cleanUrl = supabaseUrl.trim();
+    if (cleanUrl.endsWith("/")) {
+      cleanUrl = cleanUrl.slice(0, -1);
+    }
+    if (cleanUrl.endsWith("/rest/v1")) {
+      cleanUrl = cleanUrl.slice(0, -8);
+    }
+    if (cleanUrl.endsWith("/rest/v1/")) {
+      cleanUrl = cleanUrl.slice(0, -9);
+    }
+
+    const targetEndpoint = `${cleanUrl}/rest/v1/alerts`;
+
     // Thực hiện lưu trữ thật vào Supabase REST API
-    const response = await fetch(`${supabaseUrl}/rest/v1/alerts`, {
+    const response = await fetch(targetEndpoint, {
       method: "POST",
       headers: {
         "apikey": supabaseKey,
@@ -62,7 +76,7 @@ export default async (request, context) => {
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`Supabase API responded with: ${errText}`);
+      throw new Error(`Supabase API responded with: ${errText} (Endpoint: ${targetEndpoint})`);
     }
 
     const insertedData = await response.json();
@@ -77,7 +91,10 @@ export default async (request, context) => {
 
   } catch (error) {
     console.error("Alert registration error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      debug_supabase_url: process.env.SUPABASE_URL 
+    }), {
       status: 500,
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
     });
