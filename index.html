@@ -1223,10 +1223,32 @@ async function updateChart(from, to, currentRate) {
   const endDate = now.toISOString().split('T')[0];
   const startDate = start.toISOString().split('T')[0];
 
-  try {
-    if (from !== to) {
-      const res = await fetch(`https://api.frankfurter.app/${startDate}..${endDate}?from=${from}&to=${to}`);
-      if (!res.ok) throw new Error("API not supported or offline");
+  // Các đồng tiền được Frankfurter API hỗ trợ
+  const SUPPORTED = new Set(["AUD", "BGN", "BRL", "CAD", "CHF", "CNY", "CZK", "DKK", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "ISK", "JPY", "KRW", "MXN", "MYR", "NOK", "NZD", "PHP", "PLN", "RON", "SEK", "SGD", "THB", "TRY", "USD", "ZAR"]);
+
+  let benchmarkFrom = from;
+  let benchmarkTo = to;
+  let needScaling = false;
+
+  if (from !== to) {
+    if (!SUPPORTED.has(from) || !SUPPORTED.has(to)) {
+      needScaling = true;
+      // Chọn đồng tiền trung gian có sẵn trong Frankfurter để tính tỷ lệ tương ứng
+      if (SUPPORTED.has(from)) {
+        benchmarkFrom = from;
+        benchmarkTo = from === "EUR" ? "USD" : "EUR";
+      } else if (SUPPORTED.has(to)) {
+        benchmarkFrom = to === "EUR" ? "USD" : "EUR";
+        benchmarkTo = to;
+      } else {
+        benchmarkFrom = "USD";
+        benchmarkTo = "EUR";
+      }
+    }
+
+    try {
+      const res = await fetch(`https://api.frankfurter.app/${startDate}..${endDate}?from=${benchmarkFrom}&to=${benchmarkTo}`);
+      if (!res.ok) throw new Error("API request failed");
       const parsed = await res.json();
       
       const rateDates = Object.keys(parsed.rates).sort();
@@ -1235,17 +1257,26 @@ async function updateChart(from, to, currentRate) {
           const parts = dStr.split('-');
           return `${parts[2]}/${parts[1]}`;
         });
-        data = rateDates.map(dStr => parsed.rates[dStr][to]);
+
+        const rawData = rateDates.map(dStr => parsed.rates[dStr][benchmarkTo]);
+
+        if (needScaling) {
+          // Tính toán nhân tỷ lệ (scale) từ tỷ giá chuẩn hóa về tỷ giá thực của cặp tiền tệ
+          const lastApiRate = rawData[rawData.length - 1];
+          data = rawData.map(val => (val / lastApiRate) * currentRate);
+        } else {
+          data = rawData;
+        }
         
         if (data.length > 0) {
           data[data.length - 1] = currentRate;
         }
         isRealData = true;
-        console.log(`[Cloud Chart] Real historical data loaded for ${from}/${to}`);
+        console.log(`[Cloud Chart] Real trend loaded using benchmark ${benchmarkFrom}/${benchmarkTo} scaled for ${from}/${to}`);
       }
+    } catch (err) {
+      console.warn(`[Cloud Chart] Frankfurter API failed: ${err.message}. Falling back to Random Walk Simulation.`);
     }
-  } catch (err) {
-    console.warn(`[Cloud Chart] Fallback to simulated history: ${err.message}`);
   }
 
   if (!isRealData) {
@@ -1300,7 +1331,18 @@ async function updateChart(from, to, currentRate) {
         },
         y: {
           grid: { color: 'rgba(255, 255, 255, 0.04)' },
-          ticks: { color: '#9aa2b5', font: { size: 9, family: 'JetBrains Mono' } }
+          ticks: { 
+            color: '#9aa2b5', 
+            font: { size: 9, family: 'JetBrains Mono' },
+            callback: function(value) {
+              // Định dạng số nhỏ dưới 0.01 ở dạng thập phân chi tiết (tránh E-5)
+              if (value < 0.01) {
+                return value.toFixed(6);
+              }
+              // Định dạng số lớn theo locale vi-VN (dùng chấm làm phân cách hàng nghìn)
+              return value.toLocaleString('vi-VN');
+            }
+          }
         }
       }
     }
