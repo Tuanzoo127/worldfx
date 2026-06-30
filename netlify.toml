@@ -1,0 +1,14 @@
+[build]
+  publish = "."
+
+# Edge Functions: Chạy hàm default-currency tại đường dẫn trang chủ "/" để phát hiện geolocation người dùng
+[[edge-functions]]
+  path = "/"
+  function = "default-currency"
+
+# Định tuyến lại /api/* thành /.netlify/functions/* để có đường dẫn API đẹp
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+

@@ -880,15 +880,18 @@ footer a:hover {
           </div>
         </div>
 
-        <!-- Mock Cloud Alert setting -->
+        <!-- Real Cloud Alert setting -->
         <div class="alert-section">
           <div class="alert-header">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
             <span>Đặt cảnh báo biến động (Cloud Function Alert)</span>
           </div>
-          <div class="alert-inputs">
-            <input type="number" id="alertThreshold" class="alert-input" placeholder="Tỷ giá mục tiêu"/>
-            <button class="alert-btn" id="alertBtn">Đặt cảnh báo</button>
+          <div class="alert-inputs" style="display: flex; flex-direction: column; gap: 8px;">
+            <input type="email" id="alertEmail" class="alert-input" placeholder="Nhập Email nhận cảnh báo" style="width: 100%; box-sizing: border-box;"/>
+            <div style="display: flex; gap: 8px;">
+              <input type="number" id="alertThreshold" class="alert-input" placeholder="Tỷ giá mục tiêu" style="flex: 1;"/>
+              <button class="alert-btn" id="alertBtn">Đặt cảnh báo</button>
+            </div>
           </div>
           <div class="alert-status" id="alertStatus"></div>
         </div>
@@ -1008,6 +1011,13 @@ const QUICK   = ['EUR','GBP','JPY','CNY','KRW','AUD','CAD','SGD','CHF','THB','MY
 const NO_DEC  = new Set(['VND','JPY','KRW','IDR','KHR','PYG','UGX','BIF','DJF','GNF','KMF','MGA','RWF','XAF','XOF','XPF','CLP','GIP','SLL','SLE']);
 
 // ── UTILS ──────────────────────────────────────────────────────────────────
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+}
+
 function flag(code) {
   const cc = CC[code];
   if (!cc) return '💱';
@@ -1040,7 +1050,7 @@ let chartInstance = null;
 async function getRates(base) {
   const now = Date.now();
   if (cache[base] && (now - cache[base].ts) < CACHE_TTL) return cache[base].rates;
-  const r = await fetch('https://open.er-api.com/v6/latest/' + base);
+  const r = await fetch('/api/rates?base=' + base);
   if (!r.ok) throw new Error('Lỗi API (' + r.status + ')');
   const d = await r.json();
   if (d.result !== 'success') throw new Error('Dữ liệu không hợp lệ');
@@ -1266,18 +1276,58 @@ function updateChart(from, to, currentRate) {
 }
 
 // Trigger alert setup
-document.getElementById('alertBtn').addEventListener('click', () => {
+document.getElementById('alertBtn').addEventListener('click', async () => {
+  const email = document.getElementById('alertEmail').value.trim();
   const threshold = parseFloat(document.getElementById('alertThreshold').value);
   const status = document.getElementById('alertStatus');
+  const btn = document.getElementById('alertBtn');
+  
+  if (!email || !email.includes('@')) {
+    status.style.color = 'var(--red)';
+    status.textContent = 'Vui lòng nhập địa chỉ email hợp lệ!';
+    status.style.display = 'block';
+    return;
+  }
+  
   if (isNaN(threshold) || threshold <= 0) {
     status.style.color = 'var(--red)';
     status.textContent = 'Vui lòng nhập tỷ giá mục tiêu hợp lệ!';
     status.style.display = 'block';
     return;
   }
-  status.style.color = '#22c55e';
-  status.textContent = `✓ Đã kích hoạt cảnh báo! Khi tỷ giá đạt ${fmt(threshold, selTo)} ${selTo}, hệ thống Cloud Serverless Function (FaaS) sẽ gửi thông báo email đến bạn lập tức.`;
+  
+  btn.disabled = true;
+  btn.textContent = 'Đang đặt...';
+  status.style.color = 'var(--textdim)';
+  status.textContent = 'Đang đăng ký lên Cloud...';
   status.style.display = 'block';
+  
+  try {
+    const res = await fetch('/api/alerts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        fromCurrency: selFrom,
+        toCurrency: selTo,
+        targetRate: threshold
+      })
+    });
+    
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Không thể đăng ký cảnh báo.');
+    
+    status.style.color = '#22c55e';
+    status.textContent = data.message || `✓ Cảnh báo đã được ghi nhận trên cơ sở dữ liệu đám mây!`;
+  } catch (err) {
+    status.style.color = 'var(--red)';
+    status.textContent = `⚠ Lỗi: ${err.message}`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Đặt cảnh báo';
+  }
 });
 
 async function doConvert() {
@@ -1363,6 +1413,14 @@ async function doConvert() {
 
 // ── INIT ───────────────────────────────────────────────────────────────────
 (async function init() {
+  // Đọc cookie định vị từ Netlify Edge Function (nếu có)
+  const geoCurrency = getCookie('country_currency');
+  if (geoCurrency && NAMES[geoCurrency]) {
+    selTo = geoCurrency;
+    document.getElementById('fl-to').innerHTML = flag(geoCurrency);
+    document.getElementById('cd-to').textContent = geoCurrency;
+  }
+
   buildList('from');
   buildList('to');
   renderQuick(0, null);
